@@ -14,22 +14,31 @@ def main():
 
     # Fetch events based on passed arguments
 
+    events = []
+
+
     if args.user:
-        events = api.get_user_events(username = args.user)
+        events = api.get_user_events(username = args.user, page = args.page, per_page = args.count)
         for event in events:
             print(EventFormatter.format_event(event))
     elif args.repo:
         try:
-            owner, repo = args.repo.split("/")
-            events = api.get_repo_events(owner, repo)
-            for event in events:
-                print(EventFormatter.format_event(event))
+            # Correctly split the repository string
+            parts = args.repo.split('/')
+            if len(parts) != 2:
+                raise ValueError("Invalid repository format")
+
+            owner, repo = parts
+            events = api.get_repo_events(owner=owner, repo=repo, page=args.page, per_page=args.count)
         except ValueError:
             print("Error: Invalid repository format. Use 'owner/repo'.")
             sys.exit(1)
     else:
-        print("Error: --user is required.")
+        print("Error: Either --user or --repo must be specified")
         sys.exit(1)
+
+    for event in events:
+        print(EventFormatter.format_event(event))
 
 if __name__ == "__main__":
     main()

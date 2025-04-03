@@ -31,6 +31,7 @@ class GitHubAPI:
             else:
                 print(f"HTTP Error: {e}")
             sys.exit(1)
+            
         except requests.exceptions.RequestException as e:
             print(f"Request Error: {e}")
             sys.exit(1)
