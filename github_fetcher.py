@@ -1,27 +1,23 @@
-
+#!/usr/bin/env python3
 
 import sys
+import json
 from utils.apiHandler import GitHubAPI
 from utils.eventFormatter import EventFormatter
 from utils.oneLineArg import parse_args
-import json
 
 def main():
-    """Main entry point for the script."""
+    """Main entry point for the GitHub activity fetcher"""
     args = parse_args()
 
-    # Create API Handler
-    api = GitHubAPI()
+    # Create API handler
+    api = GitHubAPI(token=args.token)
 
-    # Fetch events based on passed arguments
-
+    # Fetch events based on provided arguments
     events = []
 
-
     if args.user:
-        events = api.get_user_events(username = args.user, page = args.page, per_page = args.count)
-        for event in events:
-            print(EventFormatter.format_event(event))
+        events = api.get_user_events(username=args.user, page=args.page, per_page=args.count)
     elif args.repo:
         try:
             # Correctly split the repository string
@@ -32,20 +28,21 @@ def main():
             owner, repo = parts
             events = api.get_repo_events(owner=owner, repo=repo, page=args.page, per_page=args.count)
         except ValueError:
-            print("Error: Invalid repository format. Use 'owner/repo'.")
+            print("Error: Repository should be in format 'owner/repo'")
             sys.exit(1)
     else:
         print("Error: Either --user or --repo must be specified")
         sys.exit(1)
 
-
+    # Output events in requested format
     if args.json:
-        # Print raw JSON output if --json flag is set
         print(json.dumps(events, indent=2))
     else:
-        # Print formatted output if --json flag is not set
         for event in events:
-            print(EventFormatter.format_event(event))
+            print(EventFormatter.format_event(event, detailed=args.detailed))
+            # Add a separator between detailed events for better readability
+            if args.detailed:
+                print("-" * 40)
 
 if __name__ == "__main__":
     main()
