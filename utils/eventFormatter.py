@@ -1,7 +1,7 @@
 from datetime import datetime
 
 class EventFormatter:
-    """Formats event data for display."""
+    """Formats GitHub events for display"""
 
     EVENT_TYPES = {
         "PushEvent": "pushed to",
@@ -20,49 +20,56 @@ class EventFormatter:
         "MemberEvent": "updated member in",
     }
 
-
-
     @staticmethod
     def format_time(time_str):
-        """Formats GitHub time string to human-readable format"""
+        """Format the GitHub time string to human-readable format"""
         dt = datetime.strptime(time_str, "%Y-%m-%dT%H:%M:%SZ")
         return dt.strftime("%Y-%m-%d %H:%M:%S")
 
     @staticmethod
-    def format_event(event):
-        """Formats a single event."""
+    def format_event(event, detailed=False):
+        """Format a single GitHub event as a string"""
         event_type = event["type"]
         actor = event["actor"]["login"]
         repo = event["repo"]["name"]
         created_at = EventFormatter.format_time(event["created_at"])
 
-        action = EventFormatter.EVENTS_TYPES.get(event_type, "Interacted with")
-        if event_type == "PushEvent":
-            action = f"{action} {event['payload']['size']} commits"
-        elif event_type == "IssuesEvent":
-            action = f"{action} issue #{event['payload']['issue']['number']}"
-        elif event_type == "PullRequestEvent":
-            action = f"{action} pull request #{event['payload']['pull_request']['number']}"
-        elif event_type == "IssueCommentEvent":
-            action = f"{action} issue #{event['payload']['issue']['number']}"
-        elif event_type == "WatchEvent":
-            action = f"{action} {repo}"
-        elif event_type == "ForkEvent":
-            action = f"{action} {repo}"
-        elif event_type == "ReleaseEvent":
-            action = f"{action} {event['payload']['release']['tag_name']}"
-        elif event_type == "CommitCommentEvent":
-            action = f"{action} commit {event['payload']['comment']['commit_id']}"
-        elif event_type == "PublicEvent":
-            action = f"{action} {repo}"
-        elif event_type == "MemberEvent":
-            action = f"{action} {event['payload']['member']['login']}"
-        elif event_type == "DeleteEvent":
-            action = f"{action} {event['payload']['ref_type']} {event['payload']['ref']}"
-        elif event_type == "CreateEvent":
-            action = f"{action} {event['payload']['ref_type']} {event['payload']['ref']}"
-        elif event_type == "PullRequestReviewEvent":
-            action = f"{action} pull request #{event['payload']['pull_request']['number']}"
-        elif event_type == "PullRequestReviewCommentEvent":
-            action = f"{action} pull request #{event['payload']['pull_request']['number']}"
-        return f"{created_at} - {actor} {action} {repo}"
+        action = EventFormatter.EVENT_TYPES.get(event_type, "interacted with")
+
+        basic_info = f"{created_at} - {actor} {action} {repo}"
+
+        if not detailed:
+            return basic_info
+
+        # Add detailed information based on event type
+        details = []
+
+        if event_type == "PushEvent" and "payload" in event:
+            payload = event["payload"]
+            if "commits" in payload:
+                details.append(f"  Commits: {len(payload['commits'])}")
+                for commit in payload["commits"]:
+                    if "message" in commit:
+                        # Get first line of commit message
+                        message = commit["message"].split("\n")[0]
+                        details.append(f"  - {message[:60]}{'...' if len(message) > 60 else ''}")
+
+        elif event_type == "IssuesEvent" and "payload" in event:
+            payload = event["payload"]
+            if "issue" in payload and "title" in payload["issue"]:
+                action = payload.get("action", "unknown")
+                title = payload["issue"]["title"]
+                number = payload["issue"]["number"]
+                details.append(f"  {action.capitalize()} issue #{number}: {title}")
+
+        elif event_type == "PullRequestEvent" and "payload" in event:
+            payload = event["payload"]
+            if "pull_request" in payload and "title" in payload["pull_request"]:
+                action = payload.get("action", "unknown")
+                title = payload["pull_request"]["title"]
+                number = payload["pull_request"]["number"]
+                details.append(f"  {action.capitalize()} PR #{number}: {title}")
+
+        if details:
+            return basic_info + "\n" + "\n".join(details)
+        return basic_info
