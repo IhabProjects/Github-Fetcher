@@ -4,6 +4,7 @@ import sys
 from utils.apiHandler import GitHubAPI
 from utils.eventFormatter import EventFormatter
 from utils.oneLineArg import parse_args
+import json
 
 def main():
     """Main entry point for the script."""
