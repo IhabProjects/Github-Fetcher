@@ -37,8 +37,14 @@ def main():
         print("Error: Either --user or --repo must be specified")
         sys.exit(1)
 
-    for event in events:
-        print(EventFormatter.format_event(event))
+
+    if args.json:
+        # Print raw JSON output if --json flag is set
+        print(json.dumps(events, indent=2))
+    else:
+        # Print formatted output if --json flag is not set
+        for event in events:
+            print(EventFormatter.format_event(event))
 
 if __name__ == "__main__":
     main()
