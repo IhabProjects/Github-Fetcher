@@ -20,3 +20,12 @@ class GithubApi:
         response = requests.get(endpoint, headers=self.headers, params=params)
         response.raise_for_status()
         return response.json()
+    def get_repo_events(self, repo, page=1):
+        """Fetch events for a specific repository."""
+
+        endpoint = f"{self.BASE_URL}/repos/{repo}/events"
+        params = {"page": page}
+
+        response = requests.get(endpoint, headers=self.headers, params=params)
+        response.raise_for_status()
+        return response.json()
