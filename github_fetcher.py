@@ -18,9 +18,9 @@ def main():
         events = api.get_user_events(username = args.user)
         for event in events:
             print(EventFormatter.format_event(event))
-        else:
-            print("Error: --user is required.")
-            sys.exit(1)
+    else:
+        print("Error: --user is required.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
