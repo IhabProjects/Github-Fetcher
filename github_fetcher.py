@@ -1,7 +1,7 @@
 
 
 import sys
-from utils.apiHandler import GitHubApi
+from utils.apiHandler import GitHubAPI
 from utils.eventFormatter import EventFormatter
 from utils.oneLineArg import parse_args
 
@@ -10,7 +10,7 @@ def main():
     args = parse_args()
 
     # Create API Handler
-    api = GitHubApi()
+    api = GitHubAPI()
 
     # Fetch events based on passed arguments
 
@@ -21,7 +21,7 @@ def main():
     elif args.repo:
         try:
             owner, repo = args.repo.split("/")
-            events = api.get_repo_events(owner = owner, repo = repo)
+            events = api.get_repo_events(owner, repo)
             for event in events:
                 print(EventFormatter.format_event(event))
         except ValueError:
