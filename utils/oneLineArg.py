@@ -13,5 +13,7 @@ def parse_args():
 
 
     parser.add_argument('--json', '-j', action='store_true', help='Output raw JSON instead of formatted text')
+    
+    parser.add_argument('--detailed', '-d', action='store_true', help='Show detailed event information')
 
     return parser.parse_args()
