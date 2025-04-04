@@ -36,7 +36,7 @@ def print_usage():
 
     {Fore.CYAN}OPTIONS:{Style.RESET_ALL}
 
-    {Fore.YELLOW}-u, --user{Style.RESET_ALL}     GitHub username to fetch activity for
+    {Fore.YELLOW}-u, --user{Style.RESET_ALL}     to fetch activity for GitHub username
     {Fore.YELLOW}-r, --repo{Style.RESET_ALL}     GitHub repository (format: owner/repo)
     {Fore.YELLOW}-t, --token{Style.RESET_ALL}    GitHub API token for authentication
     {Fore.YELLOW}-p, --page{Style.RESET_ALL}     Page number (default: 1)
