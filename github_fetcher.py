@@ -9,6 +9,31 @@ from utils.cli_display import (
     print_banner, print_usage, print_error,
     print_success, print_info, print_warning
 )
+from colorama import Fore, Style
+
+def print_events(events, detailed=False):
+    """Print events with nice formatting"""
+    if not events:
+        print_warning("No events found")
+        return
+
+    # Print summary header
+    print(f"\n{Fore.CYAN}Found {len(events)} events{Style.RESET_ALL}")
+    print(f"{Fore.YELLOW}{'─' * 80}{Style.RESET_ALL}\n")
+
+    # Print each event
+    for i, event in enumerate(events, 1):
+        print(EventFormatter.format_event(event, detailed=detailed))
+
+        # Add separator between events
+        if i < len(events):
+            if detailed:
+                print(f"\n{Fore.YELLOW}{'─' * 80}{Style.RESET_ALL}\n")
+            else:
+                print()
+
+    # Print footer
+    print(f"\n{Fore.YELLOW}{'─' * 80}{Style.RESET_ALL}")
 
 def main():
     """Main entry point for the GitHub activity fetcher"""
@@ -56,14 +81,7 @@ def main():
         if args.json:
             print(json.dumps(events, indent=2))
         else:
-            if not events:
-                print_warning("No events found")
-            else:
-                for event in events:
-                    print(EventFormatter.format_event(event, detailed=args.detailed))
-                    # Add a separator between detailed events for better readability
-                    if args.detailed:
-                        print("-" * 40)
+            print_events(events, detailed=args.detailed)
 
     except KeyboardInterrupt:
         print_warning("\nOperation cancelled by user")

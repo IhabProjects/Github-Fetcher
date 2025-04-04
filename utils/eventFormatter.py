@@ -1,23 +1,80 @@
 from datetime import datetime
+from colorama import Fore, Style
 
 class EventFormatter:
     """Formats GitHub events for display"""
 
     EVENT_TYPES = {
-        "PushEvent": "pushed to",
-        "IssuesEvent": "modified issue in",
-        "IssueCommentEvent": "commented on issue in",
-        "PullRequestEvent": "created PR in",
-        "PullRequestReviewEvent": "reviewed PR in",
-        "PullRequestReviewCommentEvent": "commented on PR in",
-        "CreateEvent": "created",
-        "DeleteEvent": "deleted",
-        "WatchEvent": "starred",
-        "ForkEvent": "forked",
-        "ReleaseEvent": "released in",
-        "CommitCommentEvent": "commented on commit in",
-        "PublicEvent": "made public",
-        "MemberEvent": "updated member in",
+        "PushEvent": {
+            "icon": "🔨",
+            "color": Fore.GREEN,
+            "action": "pushed to"
+        },
+        "IssuesEvent": {
+            "icon": "⚡",
+            "color": Fore.MAGENTA,
+            "action": "modified issue in"
+        },
+        "IssueCommentEvent": {
+            "icon": "💭",
+            "color": Fore.BLUE,
+            "action": "commented on issue in"
+        },
+        "PullRequestEvent": {
+            "icon": "🔀",
+            "color": Fore.CYAN,
+            "action": "created PR in"
+        },
+        "PullRequestReviewEvent": {
+            "icon": "👀",
+            "color": Fore.YELLOW,
+            "action": "reviewed PR in"
+        },
+        "PullRequestReviewCommentEvent": {
+            "icon": "💬",
+            "color": Fore.BLUE,
+            "action": "commented on PR in"
+        },
+        "CreateEvent": {
+            "icon": "✨",
+            "color": Fore.GREEN,
+            "action": "created"
+        },
+        "DeleteEvent": {
+            "icon": "🗑️",
+            "color": Fore.RED,
+            "action": "deleted"
+        },
+        "WatchEvent": {
+            "icon": "⭐",
+            "color": Fore.YELLOW,
+            "action": "starred"
+        },
+        "ForkEvent": {
+            "icon": "🍴",
+            "color": Fore.CYAN,
+            "action": "forked"
+        },
+        "ReleaseEvent": {
+            "icon": "📦",
+            "color": Fore.GREEN,
+            "action": "released in"
+        },
+        "CommitCommentEvent": {
+            "icon": "💡",
+            "color": Fore.BLUE,
+            "action": "commented on commit in"
+        },
+        "PublicEvent": {
+            "icon": "🌍",
+            "color": Fore.GREEN,
+            "action": "made public"
+        },
+        "MemberEvent": {
+            "icon": "👥",
+            "color": Fore.MAGENTA,
+            "action": "updated member in"
+        }
     }
 
     @staticmethod
@@ -34,9 +91,21 @@ class EventFormatter:
         repo = event["repo"]["name"]
         created_at = EventFormatter.format_time(event["created_at"])
 
-        action = EventFormatter.EVENT_TYPES.get(event_type, "interacted with")
+        # Get event type info with defaults
+        event_info = EventFormatter.EVENT_TYPES.get(event_type, {
+            "icon": "❔",
+            "color": Fore.WHITE,
+            "action": "interacted with"
+        })
 
-        basic_info = f"{created_at} - {actor} {action} {repo}"
+        # Format the basic event line
+        basic_info = (
+            f"{Fore.WHITE}[{created_at}] "
+            f"{event_info['icon']} "
+            f"{event_info['color']}{actor}{Fore.WHITE} "
+            f"{event_info['action']} "
+            f"{Fore.YELLOW}{repo}{Style.RESET_ALL}"
+        )
 
         if not detailed:
             return basic_info
@@ -47,12 +116,15 @@ class EventFormatter:
         if event_type == "PushEvent" and "payload" in event:
             payload = event["payload"]
             if "commits" in payload:
-                details.append(f"  Commits: {len(payload['commits'])}")
+                details.append(f"\n  {Fore.CYAN}Commits: {len(payload['commits'])}{Style.RESET_ALL}")
                 for commit in payload["commits"]:
                     if "message" in commit:
                         # Get first line of commit message
                         message = commit["message"].split("\n")[0]
-                        details.append(f"  - {message[:60]}{'...' if len(message) > 60 else ''}")
+                        details.append(
+                            f"  {Fore.GREEN}➜{Style.RESET_ALL} {message[:60]}"
+                            f"{'...' if len(message) > 60 else ''}"
+                        )
 
         elif event_type == "IssuesEvent" and "payload" in event:
             payload = event["payload"]
@@ -60,7 +132,10 @@ class EventFormatter:
                 action = payload.get("action", "unknown")
                 title = payload["issue"]["title"]
                 number = payload["issue"]["number"]
-                details.append(f"  {action.capitalize()} issue #{number}: {title}")
+                details.append(
+                    f"\n  {Fore.MAGENTA}#{number}{Style.RESET_ALL} "
+                    f"{action.capitalize()}: {title}"
+                )
 
         elif event_type == "PullRequestEvent" and "payload" in event:
             payload = event["payload"]
@@ -68,7 +143,19 @@ class EventFormatter:
                 action = payload.get("action", "unknown")
                 title = payload["pull_request"]["title"]
                 number = payload["pull_request"]["number"]
-                details.append(f"  {action.capitalize()} PR #{number}: {title}")
+                details.append(
+                    f"\n  {Fore.CYAN}PR #{number}{Style.RESET_ALL} "
+                    f"{action.capitalize()}: {title}"
+                )
+
+                # Add PR statistics if available
+                pr = payload["pull_request"]
+                stats = (
+                    f"\n  {Fore.GREEN}+{pr.get('additions', 0)}{Style.RESET_ALL} "
+                    f"{Fore.RED}-{pr.get('deletions', 0)}{Style.RESET_ALL} "
+                    f"({pr.get('changed_files', 0)} files)"
+                )
+                details.append(stats)
 
         if details:
             return basic_info + "\n" + "\n".join(details)

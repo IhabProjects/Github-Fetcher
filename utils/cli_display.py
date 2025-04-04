@@ -19,7 +19,7 @@ def print_banner():
      ╚═════╝ ╚═╝   ╚═╝       ╚═╝     ╚══════╝   ╚═╝    ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝{Style.RESET_ALL}
 
     {Fore.GREEN}[ GitHub Activity Fetcher v1.0 ]{Style.RESET_ALL}
-    {Fore.YELLOW}[ Created by Eurekios ]{Style.RESET_ALL}
+    {Fore.YELLOW}[ Created by Eurekios: Ihab ]{Style.RESET_ALL}
     """
     print(banner)
 
@@ -47,13 +47,13 @@ def print_usage():
     {Fore.CYAN}EXAMPLES:{Style.RESET_ALL}
 
     {Fore.GREEN}# Fetch user activity with token{Style.RESET_ALL}
-    python github_fetcher.py --user octocat --token YOUR_TOKEN
+    python github_fetcher.py --user turing --token YOUR_TOKEN
 
     {Fore.GREEN}# Fetch repository activity with pagination{Style.RESET_ALL}
-    python github_fetcher.py --repo octocat/hello-world --page 2 --count 50
+    python github_fetcher.py --repo turing/hello-world --page 2 --count 50
 
     {Fore.GREEN}# Get detailed JSON output{Style.RESET_ALL}
-    python github_fetcher.py --user octocat --json --detailed > activity.json
+    python github_fetcher.py --user turing --json --detailed > activity.json
     """
     print(usage)
 
