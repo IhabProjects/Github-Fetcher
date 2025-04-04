@@ -9,6 +9,7 @@ from utils.cli_display import (
     print_banner, print_usage, print_error,
     print_success, print_info, print_warning
 )
+from utils.profile_display import display_user_profile
 from colorama import Fore, Style
 
 def print_events(events, detailed=False):
@@ -53,10 +54,16 @@ def main():
 
     try:
         if args.user:
+            print_info(f"Fetching profile for user: {args.user}")
+
+            # Fetch and display user profile
+            user_data = api.get_user_profile(args.user)
+            if user_data:
+                display_user_profile(user_data)
+
             print_info(f"Fetching events for user: {args.user}")
             events = api.get_user_events(username=args.user, page=args.page, per_page=args.count)
             print_success(f"Successfully fetched {len(events)} events")
-
         elif args.repo:
             try:
                 # Correctly split the repository string
